@@ -24,7 +24,7 @@ class UsersService(Service):
 
     async def update_or_create_user(self, data: dict) -> User:  # noqa
 
-        row = await UsersRepository.get_by_field(field="email", value=data["email"])
+        row = await UsersRepository.get_first(filter_data={"email": data["email"]})
         if row:
             meta_: dict = row.meta or {}
             meta_.update(data["meta"])
@@ -35,5 +35,5 @@ class UsersService(Service):
         return User(**row)
 
     async def get_by_field(self, value: Any, field: str = "uuid") -> User:  # noqa
-        row = await UsersRepository.get_by_field(field=field, value=value)
+        row = await UsersRepository.get_first(filter_data={field: value})
         return User(**row)  # type: ignore

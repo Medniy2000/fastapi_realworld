@@ -152,6 +152,19 @@ class BasePSQLRepository(BaseAbstractRepository):
         return await q.gino.scalar()
 
     @classmethod
+    async def exists(
+        cls,
+        filter_data: Optional[dict],
+    ) -> bool:
+        """
+        :param filter_data: dict - filter row data
+        :return:
+        """
+        q = db.func.exists(cls.MODEL.id).select()  # type: ignore
+        q = cls.get_query_filtered(q, filter_data)
+        return await q.gino.scalar()
+
+    @classmethod
     async def get_first(
         cls, filter_data: Optional[dict], fields: Optional[list] = None
     ) -> Optional[RowProxy]:
@@ -171,19 +184,6 @@ class BasePSQLRepository(BaseAbstractRepository):
 
         row = await q.gino.first()
         return row
-
-    @classmethod
-    async def exists(
-        cls,
-        filter_data: Optional[dict],
-    ) -> bool:
-        """
-        :param filter_data: dict - filter row data
-        :return:
-        """
-        q = db.func.exists(cls.MODEL.id).select()  # type: ignore
-        q = cls.get_query_filtered(q, filter_data)
-        return await q.gino.scalar()
 
     @classmethod
     async def get_list(
@@ -279,7 +279,7 @@ class BasePSQLRepository(BaseAbstractRepository):
         :return: row
         """
 
-        row = await cls.update_by_field(field=field, value=value, data=data)
+        row = await cls.update(filter_data={field: value}, data=data)
         if not row:
             row = await cls.create(data)
         return row

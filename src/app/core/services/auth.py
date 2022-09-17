@@ -15,5 +15,5 @@ class AuthService(Service):
     async def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return self.pwd_context.verify(plain_password, hashed_password)
 
-    async def get_password_hash(self, password: str) -> str:
+    async def get_password_hashed(self, password: str) -> str:
         return self.pwd_context.hash(password)

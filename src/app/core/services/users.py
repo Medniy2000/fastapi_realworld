@@ -1,8 +1,11 @@
 from typing import Any, Optional
+from fastapi import HTTPException
+from pydantic import validate_email
 
 from src.app.config.settings import settings
 from src.app.core.models.users import User
 from src.app.core.repositories.users import UsersRepository
+from src.app.core.services.auth import AuthService
 from src.app.core.services.base import Service
 
 
@@ -32,8 +35,30 @@ class UsersService(Service):
             row = await UsersRepository.update_by_obj(obj=row, data=data)
         else:
             row = await UsersRepository.create(data=data)
-        return User(**row)
+
+        return User(**row.to_dict())
 
     async def get_by_field(self, value: Any, field: str = "uuid") -> User:  # noqa
         row = await UsersRepository.get_first(filter_data={field: value})
         return User(**row)  # type: ignore
+
+    async def get_authenticated_user(self, email: str, password: str) -> User:
+        try:
+            email_validated = validate_email(email)[1]
+        except Exception:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Invalid value {email}"
+            )
+
+        auth_service = AuthService(request=self.request)
+        row = await UsersRepository.get_first(
+            filter_data={"email": email_validated}
+        )
+        is_password_verified = await auth_service.verify_password(password, getattr(row, "password_hashed"))
+        if not row or not is_password_verified:
+            raise HTTPException(
+                status_code=422,
+                detail="Value email or password is incorrect"
+            )
+        return User(**row)

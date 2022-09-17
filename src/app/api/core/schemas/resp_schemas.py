@@ -1,5 +1,6 @@
-from typing import Optional, List, Any
 import uuid
+from typing import List, Any
+
 from pydantic import BaseModel
 from pydantic.class_validators import validator
 
@@ -17,7 +18,5 @@ class UUIDResp(BaseResp):
 
 
 class ListResp(BaseResp):
-    prev: Optional[str]
-    next: Optional[str]
     count: int = 0
     results: List[Any] = []

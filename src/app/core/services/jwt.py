@@ -66,8 +66,8 @@ class JWTService(Service):
         refresh_token = JWTService.create_refresh_token(refresh_token_payload)
         # TODO save to redis
         return {
-            "access_token": access_token,
-            "refresh_token": refresh_token,
+            "access": access_token,
+            "refresh": refresh_token,
         }
 
     @classmethod

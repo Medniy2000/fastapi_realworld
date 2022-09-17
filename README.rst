@@ -50,3 +50,7 @@ Docs commands::
         # poetry run sphinx-quickstart
     $ cd <path_to>/docs
     $ poetry run make html
+
+Run tests::
+
+    $ docker-compose -f docker-compose-tests.yml up --force-recreate --remove-orphans --renew-anon-volumes

@@ -1,7 +1,7 @@
 import sqlalchemy
 
 from src.app.config.settings import settings
-from gino.ext.starlette import Gino # noqa
+from gino.ext.starlette import Gino  # noqa
 
 metadata = sqlalchemy.MetaData()
 

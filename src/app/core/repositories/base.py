@@ -29,13 +29,27 @@ class BaseAbstractRepository(AbstractRepository):
         raise NotImplementedError
 
     @classmethod
-    async def get_first(cls, filter_data: Optional[dict], fields: Optional[list] = None) -> Any:
+    async def get_first_partial(cls, fields: Optional[list], filter_data: Optional[dict]) -> Any:
+        raise NotImplementedError
+
+    @classmethod
+    async def get_list_partial(
+        cls,
+        fields: Optional[list],
+        filter_data: Optional[dict],
+        order_data: Optional[list],
+        limit: Optional[int],
+        offset: Optional[int],
+    ) -> List[Any]:
+        raise NotImplementedError
+
+    @classmethod
+    async def get_first(cls, filter_data: Optional[dict]) -> Any:
         raise NotImplementedError
 
     @classmethod
     async def get_list(
         cls,
-        fields: Optional[list],
         filter_data: Optional[dict],
         order_data: Optional[list],
         limit: Optional[int],
@@ -165,8 +179,10 @@ class BasePSQLRepository(BaseAbstractRepository):
         return await q.gino.scalar()
 
     @classmethod
-    async def get_first(
-        cls, filter_data: Optional[dict], fields: Optional[list] = None
+    async def get_first_partial(
+        cls,
+        fields: Optional[list] = None,
+        filter_data: Optional[dict] = None,
     ) -> Optional[RowProxy]:
         """
         :param filter_data: dict - filter row data
@@ -186,7 +202,7 @@ class BasePSQLRepository(BaseAbstractRepository):
         return row
 
     @classmethod
-    async def get_list(
+    async def get_list_partial(
         cls,
         fields: Optional[list] = None,
         filter_data: Optional[dict] = None,
@@ -215,7 +231,48 @@ class BasePSQLRepository(BaseAbstractRepository):
         return await q.offset(offset).limit(limit).gino.all()
 
     @classmethod
-    async def create(cls, data: dict) -> RowProxy:
+    async def get_first(cls, filter_data: Optional[dict]) -> Optional[db.Model]:
+        """
+        :param filter_data: dict - filter row data
+        :return: Model - row from database, if exists.
+        """
+
+        if not filter_data:
+            filter_data = {}
+
+        q = cls.MODEL.query
+        q = cls.get_query_filtered(q, filter_data)
+
+        row = await q.gino.first()
+        return row
+
+    @classmethod
+    async def get_list(
+        cls,
+        filter_data: Optional[dict] = None,
+        order_by: Optional[list] = None,
+        limit: Optional[int] = settings.BATCH_SIZE,
+        offset: Optional[int] = 0,
+    ) -> List[db.Model]:
+        """
+        :param filter_data: dict - filter rows data
+        :param order_by:  list - ordering fields
+        :param limit: int - limit rows count to select
+        :param offset: int - offset rows count to select
+        :return: list
+        """
+        if not filter_data:
+            filter_data = {}
+        if not order_by:
+            order_by = cls.FIELDS_ORDER_BY
+        order_by_fields = cls.ordering_fields(order_by)  # type: ignore
+
+        q = cls.MODEL.query  # type: ignore
+        q = cls.get_query_filtered(q, filter_data).order_by(*order_by_fields)
+        return await q.offset(offset).limit(limit).gino.all()
+
+    @classmethod
+    async def create(cls, data: dict) -> db.Model:
         """
         :param data: dict - data to create new row
         :return: row
@@ -223,7 +280,7 @@ class BasePSQLRepository(BaseAbstractRepository):
         return await cls.MODEL.create(**data)  # type: ignore
 
     @classmethod
-    async def update(cls, filter_data: dict, data: dict, return_updated=True) -> Optional[RowProxy]:
+    async def update(cls, filter_data: dict, data: dict, return_updated=True) -> Optional[db.Model]:
         """
         :param filter_data: dict - data to update row
         :param data: dict - data to update row
@@ -244,7 +301,7 @@ class BasePSQLRepository(BaseAbstractRepository):
         return await q.gino.model(cls.MODEL).apply()
 
     @classmethod
-    async def update_by_obj(cls, obj: RowProxy, data: dict) -> RowProxy:
+    async def update_by_obj(cls, obj: db.Model, data: dict) -> db.Model:
         """
         :param obj: row obj to update
         :param data: dict - data to update row
@@ -259,7 +316,7 @@ class BasePSQLRepository(BaseAbstractRepository):
         )
 
     @classmethod
-    async def get_or_create(cls, filter_data: dict, data: dict) -> RowProxy:
+    async def get_or_create(cls, filter_data: dict, data: dict) -> db.Model:
         """
         :param filter_data: dict - filter row(s) data
         :param data: dict - data to create new row
@@ -271,7 +328,7 @@ class BasePSQLRepository(BaseAbstractRepository):
         return row
 
     @classmethod
-    async def update_or_create(cls, field: str, value: Any, data: dict) -> RowProxy:
+    async def update_or_create(cls, field: str, value: Any, data: dict) -> db.Model:
         """
         :param data: dict - data to update row
         :param value: any type - value parameter to get or update row
@@ -292,4 +349,7 @@ class BasePSQLRepository(BaseAbstractRepository):
         """
         q = cls.MODEL.delete  # type: ignore
         q = cls.get_query_filtered(q, filter_data)
-        return await q.gino.status()
+        status = await q.gino.status()
+        status_str_split = status[0].split(" ")
+        count_str = status_str_split[1]
+        return int(count_str) > 0

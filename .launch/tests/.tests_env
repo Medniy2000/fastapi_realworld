@@ -1,0 +1,21 @@
+# General
+# ------------------------------------------------------------------------------
+LAUNCH_MODE=local
+READ_ENV=True
+SECRET_KEY=OpypRaBHOiRSEQRp-wHEEEnq1euQQNqcmQBrD-Lb-G42lrXgREsnFQ3jKSugRKun
+CORS_ORIGIN_WHITELIST=["http://127.0.0.1:8000/"]
+DEBUG=False
+
+# API
+# ------------------------------------------------------------------------------
+BATCH_SIZE=25
+
+# DB
+# ------------------------------------------------------------------------------
+POSTGRES_HOST=test_psql_service
+POSTGRES_PORT=5432
+POSTGRES_USER=test_user
+POSTGRES_PASSWORD=test_password
+POSTGRES_DB=test_db
+POSTGRES_POOL_MIN_SIZE=10
+POSTGRES_POOL_MAX_SIZE=70

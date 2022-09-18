@@ -51,15 +51,16 @@ class JWTService(Service):
 
     @classmethod
     def create_tokens_pair(cls, uuid: str, email: str, secret: str) -> Dict[str, str]:
-        sid: str = generate_str()
+        access_sid: str = generate_str(size=6)
+        refresh_sid: str = f"{generate_str(size=8)}#{access_sid}"
         access_token_payload = {
             "uuid": uuid,
             "email": email,
-            "sid": sid,
+            "sid": access_sid,
         }
         refresh_token_payload = {
-            "secret": secret,
-            "sid": sid,
+            "uuid": uuid,
+            "sid": refresh_sid,
         }
         access_token = JWTService.create_access_token(access_token_payload)
         refresh_token = JWTService.create_refresh_token(refresh_token_payload)
@@ -76,7 +77,7 @@ class JWTService(Service):
             user_data = payload.get("user", {})
             expire = payload.get("exp", None)  # noqa: F841
             return user_data
-
+        # TODO verify via redis
         raise cls.exception
 
     @classmethod

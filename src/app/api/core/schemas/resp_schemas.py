@@ -6,7 +6,8 @@ from pydantic.class_validators import validator
 
 
 class BaseResp(BaseModel):
-    pass
+    class Config:
+        orm_mode = True
 
 
 class UUIDResp(BaseResp):

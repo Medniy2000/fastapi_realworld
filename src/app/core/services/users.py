@@ -1,4 +1,5 @@
-from typing import Any, Optional
+from typing import Optional
+
 from fastapi import HTTPException
 from pydantic import validate_email
 

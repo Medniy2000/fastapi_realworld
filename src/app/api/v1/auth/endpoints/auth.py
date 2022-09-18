@@ -19,11 +19,10 @@ async def tokens(
 
     user = await user_service.get_authenticated_user(email=data.email, password=data.password)
 
-    new_tokens = jwt_service.create_tokens_pair(
+    new_tokens = jwt_service.create_tokens_pair( # noqa
         uuid=str(user.uuid),
-        username=user.username,
-        email=user.email,
-        secret=user.secret,
+        email=user.email,  # type: ignore
+        secret=user.secret,  # type: ignore
     )
     tokens_data = {
         "user_data": {"uuid": str(user.uuid), "username": user.username, "email": user.email},
@@ -42,13 +41,12 @@ async def tokens_refreshed(
 ) -> dict:
     """Get new access, refresh tokens [Granted by refresh token in header]"""
 
-    user = await user_service.get_by_field(field="secret", value=refresh_data["secret"])
+    user = await user_service.get_first(filter_data={"secret": refresh_data["secret"]})
 
-    new_tokens = jwt_service.create_tokens_pair(
+    new_tokens = jwt_service.create_tokens_pair(  # noqa
         uuid=str(user.uuid),
-        username=user.username,
-        email=user.email,
-        secret=user.secret,
+        email=user.email,  # type: ignore
+        secret=user.secret,  # type: ignore
     )
     tokens_data = {
         "user_data": {"uuid": str(user.uuid), "username": user.username, "email": user.email},

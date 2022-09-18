@@ -50,11 +50,10 @@ class JWTService(Service):
         return encoded_jwt
 
     @classmethod
-    def create_tokens_pair(cls, uuid: str, username: str, email: str, secret: str) -> Dict[str, str]:
+    def create_tokens_pair(cls, uuid: str, email: str, secret: str) -> Dict[str, str]:
         sid: str = generate_str()
         access_token_payload = {
             "uuid": uuid,
-            "username": username,
             "email": email,
             "sid": sid,
         }
@@ -64,7 +63,7 @@ class JWTService(Service):
         }
         access_token = JWTService.create_access_token(access_token_payload)
         refresh_token = JWTService.create_refresh_token(refresh_token_payload)
-        # TODO save to redis
+
         return {
             "access": access_token,
             "refresh": refresh_token,
@@ -77,7 +76,7 @@ class JWTService(Service):
             user_data = payload.get("user", {})
             expire = payload.get("exp", None)  # noqa: F841
             return user_data
-        # TODO verify via redis
+
         raise cls.exception
 
     @classmethod

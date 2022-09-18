@@ -25,7 +25,6 @@ passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 uuid = "^1.30"
 email-validator = "^1.2.1"
 
-
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.0"
 pytest-asyncio = "^0.18.3"
@@ -35,6 +34,7 @@ mypy = "^0.931"
 Sphinx = "^4.3.2"
 black = {version = "^22.8.0)", python = ">=3.9.10"}
 sphinx-rtd-theme = "^1.0.0"
+sphinx-autoapi = "^1.9.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

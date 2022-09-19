@@ -57,7 +57,6 @@ def on_shutdown_handler(application: FastAPI) -> Callable:  # type: ignore
 
 
 def register_middleware(application: FastAPI) -> None:
-    application.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
     if settings.CORS_ORIGIN_WHITELIST:
         application.add_middleware(
             CORSMiddleware,

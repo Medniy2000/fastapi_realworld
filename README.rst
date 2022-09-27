@@ -18,7 +18,11 @@ To run app local use::
     # to run app perform:
         # install, run postgres, actualize .env
 
+    # for local purposes
     $ uvicorn src.app.main:app --reload
+
+    # for production purposes
+    $ gunicorn --config src/app/gunicorn_config.py src.app.main:app
 
 
 API docs here::

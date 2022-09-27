@@ -2,7 +2,6 @@ from typing import Callable
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
 
 from src.app.api.routers import api_router
 from src.app.config.settings import settings

@@ -25,6 +25,7 @@ passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 uuid = "^1.30"
 email-validator = "^1.2.1"
 gunicorn = "^20.1.0"
+strawberry-graphql = {extras = ["fastapi"], version = "^0.133.5"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.0"

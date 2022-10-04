@@ -3,9 +3,10 @@ from typing import Callable
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.app.api.routers import api_router
+# from src.app.api.routers import api_router
 from src.app.config.settings import settings
 from src.app.extensions.db import db
+from src.app.graphql.routers import graphql_router
 from src.app.log_utils import logging_setup
 
 
@@ -28,7 +29,8 @@ def init_app() -> FastAPI:
     application = FastAPI(**settings_)  # type: ignore
 
     register_middleware(application)
-    application.include_router(api_router)
+    # application.include_router(api_router)
+    application.include_router(graphql_router, prefix="/api/v1/graphql")
 
     application.add_event_handler(
         "startup",

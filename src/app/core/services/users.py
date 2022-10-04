@@ -22,7 +22,7 @@ class UsersService(Service):
         users_rows = await UsersRepository.get_list(
             filter_data=filter_data, order_by=order_by, limit=limit, offset=offset
         )
-        users = [User(**item) for item in users_rows]
+        users = [User(**item.to_dict()) for item in users_rows]
         total_count = await UsersRepository.count(filter_data=filter_data)
         return users, total_count
 

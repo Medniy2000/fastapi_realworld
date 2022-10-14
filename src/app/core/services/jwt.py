@@ -2,15 +2,12 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict
 
 from fastapi import HTTPException, status
-from fastapi.security import HTTPBearer
 from jose import jwt
 from loguru import logger
 
 from src.app.config.settings import settings
 from src.app.core.services.base import Service
 from src.app.core.utils.common import generate_str
-
-token_auth_scheme = HTTPBearer()
 
 
 class JWTService(Service):

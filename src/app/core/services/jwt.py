@@ -1,10 +1,10 @@
-from loguru import logger
 from datetime import datetime, timedelta
 from typing import Optional, Dict
 
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status
 from fastapi.security import HTTPBearer
 from jose import jwt
+from loguru import logger
 
 from src.app.config.settings import settings
 from src.app.core.services.base import Service
@@ -34,7 +34,7 @@ class JWTService(Service):
             return None
 
     @classmethod
-    def create_access_token(cls, data: dict) -> str:
+    async def create_access_token(cls, data: dict) -> str:
         user_data = data.copy()
         expire = datetime.utcnow() + timedelta(minutes=cls.ACCESS_TOKEN_EXPIRES_MINUTES)
         payload = {"user": user_data, "exp": expire}
@@ -42,7 +42,7 @@ class JWTService(Service):
         return encoded_jwt
 
     @classmethod
-    def create_refresh_token(cls, data: dict) -> str:
+    async def create_refresh_token(cls, data: dict) -> str:
         user_data = data.copy()
         expire = datetime.utcnow() + timedelta(days=cls.REFRESH_TOKEN_EXPIRES_DAYS)
         payload = {"user": user_data, "exp": expire}
@@ -50,7 +50,7 @@ class JWTService(Service):
         return encoded_jwt
 
     @classmethod
-    def create_tokens_pair(cls, uuid: str, email: str, secret: str) -> Dict[str, str]:
+    async def create_tokens_pair(cls, uuid: str, email: str, secret: str) -> Dict[str, str]:
         access_sid: str = generate_str(size=6)
         refresh_sid: str = f"{generate_str(size=8)}#{access_sid}"
         access_token_payload = {
@@ -62,8 +62,8 @@ class JWTService(Service):
             "uuid": uuid,
             "sid": refresh_sid,
         }
-        access_token = JWTService.create_access_token(access_token_payload)
-        refresh_token = JWTService.create_refresh_token(refresh_token_payload)
+        access_token = await cls.create_access_token(access_token_payload)
+        refresh_token = await cls.create_refresh_token(refresh_token_payload)
 
         return {
             "access": access_token,
@@ -71,7 +71,7 @@ class JWTService(Service):
         }
 
     @classmethod
-    def verify_access_token(cls, token: str) -> dict:
+    async def verify_access_token(cls, token: str) -> dict:
         payload = cls._decode(token)
         if payload:
             user_data = payload.get("user", {})
@@ -81,7 +81,7 @@ class JWTService(Service):
         raise cls.exception
 
     @classmethod
-    def verify_refresh_token(cls, token: str) -> dict:
+    async def verify_refresh_token(cls, token: str) -> dict:
         payload = cls._decode(token)
         if payload:
             user_data = payload.get("user", {})
@@ -91,9 +91,9 @@ class JWTService(Service):
         raise cls.exception
 
     @classmethod
-    def access_auth_data(cls, api_auth_scheme: str = Depends(token_auth_scheme)) -> dict:
-        return cls.verify_access_token(api_auth_scheme.credentials)  # type: ignore
+    async def access_auth_data(cls, api_key: str) -> dict:
+        return await cls.verify_access_token(api_key.credentials)  # type: ignore
 
     @classmethod
-    def refresh_auth_data(cls, api_auth_scheme: str = Depends(token_auth_scheme)) -> dict:
-        return cls.verify_refresh_token(api_auth_scheme.credentials)  # type: ignore
+    async def refresh_auth_data(cls, api_key: str) -> dict:
+        return await cls.verify_refresh_token(api_key.credentials)  # type: ignore

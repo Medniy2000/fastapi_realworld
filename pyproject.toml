@@ -5,7 +5,7 @@ description = "FastAPI Real World description"
 authors = ["Medniy200 Team <your@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "3.9.10"
+python = "3.9.12"
 fastapi = "^0.70.0"
 environs = "^9.3.5"
 uvicorn = "0.16.0"
@@ -25,6 +25,7 @@ passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 uuid = "^1.30"
 email-validator = "^1.2.1"
 gunicorn = "^20.1.0"
+dependency-injector = "^4.40.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.1.0"

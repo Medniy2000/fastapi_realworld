@@ -5,6 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from src.app.api.routers import api_router
 from src.app.config.settings import settings
+from src.app.core.di_containers import Container
 from src.app.extensions.db import db
 from src.app.log_utils import logging_setup
 
@@ -27,6 +28,7 @@ def init_app() -> FastAPI:
     }
     application = FastAPI(**settings_)  # type: ignore
 
+    init_di(application)
     register_middleware(application)
     application.include_router(api_router)
 
@@ -64,6 +66,11 @@ def register_middleware(application: FastAPI) -> None:
             allow_methods=["*"],
             allow_headers=["*"],
         )
+
+
+def init_di(application: FastAPI) -> None:
+    container = Container()
+    application.container = container  # type: ignore
 
 
 app = init_app()
